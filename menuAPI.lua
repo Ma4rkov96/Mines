@@ -5,9 +5,7 @@ local interface = component.me_interface
 local event     = require("event")
 
 function payNode(mode, sum)
-  local fp, coef = {}, 0
-  if player.mode=="BTC" then fp={id="minecraft:iron_ingot",dmg=0}; coef=0.9
-  else fp={id="customnpcs:npcMoney",dmg=0}; coef=1 end
+  local fp, coef = {id="customnpcs:npcMoney", dmg=0}, 1
   local inv = pim.getAllStacks(0)
   if mode=="give" then
     local qty = interface.getItemDetail(fp).basic().qty
@@ -35,8 +33,7 @@ function drwSelect(btn, on)
   local cb,cf=gpu.getBackground(),gpu.getForeground()
   if on then gpu.setBackground(colors.win); gpu.setForeground(colors.bg)
   else gpu.setBackground(colors.text_alt); gpu.setForeground(colors.white) end
-  if btn=="BTC" then gpu.set(16,4,"┌─────────┐"); gpu.set(16,5,"|   BTC   |"); gpu.set(16,6,"└─────────┘")
-  else gpu.set(32,4,"┌──────────┐"); gpu.set(32,5,"| EMERALDS |"); gpu.set(32,6,"└──────────┘") end
+  gpu.set(32,4,"┌──────────┐"); gpu.set(32,5,"| EMERALDS |"); gpu.set(32,6,"└──────────┘")
   gpu.setBackground(cb); gpu.setForeground(cf)
 end
 
@@ -55,8 +52,7 @@ function paySystemGUI()
   gpu.setResolution(60,20); gpu.setBackground(colors.bg); gpu.setForeground(colors.black)
   gpu.fill(1,1,60,20," ")
   gpu.set(23,2,"Платёжный шлюз")
-  if player.mode=="BTC" then drwSelect("BTC",true); drwSelect("EMERALD",false)
-  else drwSelect("BTC",false); drwSelect("EMERALD",true) end
+  drwSelect("EMERALD",true)
   gpu.set(27,8,"Сумма:")
   gpu.setBackground(colors.text_alt)
   gpu.set(15,9,"┌────────────────────────────┐")

@@ -57,8 +57,8 @@ if fs.exists(dataFile) then local f=io.open(dataFile); accounts=serialization.un
 local function saveAccounts() local f=io.open(dataFile,"w"); f:write(serialization.serialize(accounts)); f:close() end
 
 function login(name)
-  if not accounts[name] then accounts[name]={balance={BTC=1000,EMERALD=1000}}; saveAccounts() end
-  return {userName=name,userBalanceBTC=accounts[name].balance.BTC,userBalanceEMERALD=accounts[name].balance.EMERALD}
+  if not accounts[name] then accounts[name]={balance={EMERALD=1000}}; saveAccounts() end
+  return {userName=name,userBalanceEMERALD=accounts[name].balance.EMERALD}
 end
 
 function balanceWork(name,bet,status,profit,curr,balance,typ,mines)
@@ -71,7 +71,16 @@ setNil()
 local function Square(x,y,col) os.sleep(0); local p=gpu.getForeground(); gpu.setForeground(col); for dy=0,7 do gpu.set(x,y+dy,string.rep("█",16)) end; gpu.setForeground(p) end
 local function drawSquares() os.sleep(0); for i=1,5 do for j=1,5 do local s=squares[i][j]; Square(s[1],s[2],colors.button) end end end
 local function drawChances(m,ch) os.sleep(0); local cb,cf=gpu.getBackground(),gpu.getForeground(); if m=="draw" then gpu.setForeground(colors.black); for i=1,#ch do gpu.set(50,i*2,"x"..tostring(ch[i])) end else gpu.setBackground(colors.bg); gpu.fill(50,2,8,47," ") end; gpu.setBackground(cb);gpu.setForeground(cf) end
-local function mainFrame() os.sleep(0); gpu.setResolution(160,50);gpu.setBackground(colors.bg);gpu.fill(1,1,160,50," ");gpu.setForeground(colors.black); gpu.fill(48,1,1,50,"█");gpu.fill(1,1,1,50,"█");gpu.fill(159,1,1,50,"█");gpu.fill(1,1,160,1,"█");gpu.fill(1,50,160,1,"█"); gpu.set(3,3,"Игрок:");gpu.set(3,6,"Баланс "..player.mode..":"); gpu.set(19,23,"Ставка:");gpu.setBackground(colors.button);gpu.set(13,24,"┌──┐  ┌──────┐  ┌──┐");gpu.set(13,25,"│-1│  │  2   │  │+1│");gpu.set(13,26,"└──┘  └──────┘  └──┘");gpu.setBackground(colors.bg); gpu.set(16,28,"Количество мин:");gpu.setBackground(colors.button);gpu.set(13,29,"┌──┐  ┌──────┐  ┌──┐");gpu.set(13,30,"│-1│  │  2   │  │+1│");gpu.set(13,31,"└──┘  └──────┘  └──┘");gpu.setBackground(0x99af96);gpu.set(9,43,"                            ");gpu.set(9,44,"      Пополнить/Вывести      ");gpu.set(9,45,"                            "); startButton(colors.button,colors.black); drawSquares() end
+local function mainFrame()
+  os.sleep(0);gpu.setResolution(160,50);gpu.setBackground(colors.bg);gpu.fill(1,1,160,50," ");gpu.setForeground(colors.black);
+  gpu.fill(48,1,1,50,"█");gpu.fill(1,1,1,50,"█");gpu.fill(159,1,1,50,"█");gpu.fill(1,1,160,1,"█");gpu.fill(1,50,160,1,"█");
+  gpu.set(3,3,"Игрок:");gpu.set(3,6,"Баланс EMERALD:");gpu.set(19,23,"Ставка:");gpu.setBackground(colors.button);
+  gpu.set(13,24,"┌──┐  ┌──────┐  ┌──┐");gpu.set(13,25,"│-1│  │  2   │  │+1│");gpu.set(13,26,"└──┘  └──────┘  └──┘");
+  gpu.setBackground(colors.bg);gpu.set(16,28,"Количество мин:");gpu.setBackground(colors.button);
+  gpu.set(13,29,"┌──┐  ┌──────┐  ┌──┐");gpu.set(13,30,"│-1│  │  2   │  │+1│");gpu.set(13,31,"└──┘  └──────┘  └──┘");
+  gpu.setBackground(0x99af96);gpu.set(9,43,"                            ");gpu.set(9,44,"      Пополнить/Вывести      ");
+  gpu.set(9,45,"                            ");startButton(colors.button,colors.black);drawSquares()
+end
 local function shuffle(cnt) for _=1,cnt do ::again::; local r,c=math.random(1,5),math.random(1,5); if squares[r][c][5]==nil then squares[r][c][5]=true else goto again end end end
 
 function loop()
@@ -115,7 +124,7 @@ function loop()
   end
 end
 
-player={name="",mode="BTC",balance={BTC=0,EMERALD=0}}
+player={name="",mode="EMERALD",balance={EMERALD=0}}
 helloMenu()
 while true do
   local ok,err=pcall(loop)

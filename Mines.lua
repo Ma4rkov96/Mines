@@ -2,6 +2,8 @@ local component     = require("component")
 local event         = require("event")
 local fs            = require("filesystem")
 local serialization = require("serialization")
+local doubleBuffering = require("lib.DoubleBuffering")
+local image = require("lib.Image")
 
 local gpu       = component.gpu
 local pim       = component.pim
@@ -71,16 +73,44 @@ setNil()
 local function Square(x,y,col) os.sleep(0); local p=gpu.getForeground(); gpu.setForeground(col); for dy=0,7 do gpu.set(x,y+dy,string.rep("█",16)) end; gpu.setForeground(p) end
 local function drawSquares() os.sleep(0); for i=1,5 do for j=1,5 do local s=squares[i][j]; Square(s[1],s[2],colors.button) end end end
 local function drawChances(m,ch) os.sleep(0); local cb,cf=gpu.getBackground(),gpu.getForeground(); if m=="draw" then gpu.setForeground(colors.black); for i=1,#ch do gpu.set(50,i*2,"x"..tostring(ch[i])) end else gpu.setBackground(colors.bg); gpu.fill(50,2,8,47," ") end; gpu.setBackground(cb);gpu.setForeground(cf) end
-local function mainFrame()
-  os.sleep(0);gpu.setResolution(160,50);gpu.setBackground(colors.bg);gpu.fill(1,1,160,50," ");gpu.setForeground(colors.black);
-  gpu.fill(48,1,1,50,"█");gpu.fill(1,1,1,50,"█");gpu.fill(159,1,1,50,"█");gpu.fill(1,1,160,1,"█");gpu.fill(1,50,160,1,"█");
-  gpu.set(3,3,"Игрок:");gpu.set(3,6,"Баланс EMERALD:");gpu.set(19,23,"Ставка:");gpu.setBackground(colors.button);
-  gpu.set(13,24,"┌──┐  ┌──────┐  ┌──┐");gpu.set(13,25,"│-1│  │  2   │  │+1│");gpu.set(13,26,"└──┘  └──────┘  └──┘");
-  gpu.setBackground(colors.bg);gpu.set(16,28,"Количество мин:");gpu.setBackground(colors.button);
-  gpu.set(13,29,"┌──┐  ┌──────┐  ┌──┐");gpu.set(13,30,"│-1│  │  2   │  │+1│");gpu.set(13,31,"└──┘  └──────┘  └──┘");
-  gpu.setBackground(0x99af96);gpu.set(9,43,"                            ");gpu.set(9,44,"      Пополнить/Вывести      ");
-  gpu.set(9,45,"                            ");startButton(colors.button,colors.black);drawSquares()
+
+-- Enhanced main frame with gradients and smoother visuals
+local function enhancedMainFrame()
+  doubleBuffering.setResolution(160, 50)
+  doubleBuffering.clear(colors.bg)
+
+  -- Draw borders with gradient effect
+  for i = 1, 50 do
+    local gradientColor = color.transition(colors.bg, colors.button, i / 50)
+    doubleBuffering.drawRectangle(1, i, 160, 1, gradientColor, 0x000000, " ")
+  end
+
+  -- Draw title
+  doubleBuffering.drawText(3, 3, colors.white, "Игрок:")
+  doubleBuffering.drawText(3, 6, colors.white, "Баланс EMERALD:")
+  doubleBuffering.drawText(19, 23, colors.white, "Ставка:")
+
+  -- Draw buttons with semi-pixel rendering
+  doubleBuffering.drawSemiPixelRectangle(13, 24, 20, 3, colors.button)
+  doubleBuffering.drawText(15, 25, colors.black, "-1")
+  doubleBuffering.drawText(20, 25, colors.black, "2")
+  doubleBuffering.drawText(25, 25, colors.black, "+1")
+
+  doubleBuffering.drawSemiPixelRectangle(13, 29, 20, 3, colors.button)
+  doubleBuffering.drawText(15, 30, colors.black, "-1")
+  doubleBuffering.drawText(20, 30, colors.black, "2")
+  doubleBuffering.drawText(25, 30, colors.black, "+1")
+
+  -- Draw footer
+  doubleBuffering.drawRectangle(9, 43, 40, 3, colors.button, 0x000000, " ")
+  doubleBuffering.drawText(11, 44, colors.black, "Пополнить/Вывести")
+
+  doubleBuffering.drawChanges()
 end
+
+-- Replace the old mainFrame function with the enhanced one
+mainFrame = enhancedMainFrame
+
 local function shuffle(cnt) for _=1,cnt do ::again::; local r,c=math.random(1,5),math.random(1,5); if squares[r][c][5]==nil then squares[r][c][5]=true else goto again end end end
 
 function loop()

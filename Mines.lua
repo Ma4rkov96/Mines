@@ -215,6 +215,29 @@ function loop()
   end
 end
 
+-- Восстановление функции login
+local dataFile = "/user_data.cfg"
+local accounts = {}
+if fs.exists(dataFile) then
+  local f = io.open(dataFile, "r")
+  accounts = serialization.unserialize(f:read("*a")) or {}
+  f:close()
+end
+
+local function saveAccounts()
+  local f = io.open(dataFile, "w")
+  f:write(serialization.serialize(accounts))
+  f:close()
+end
+
+function login(name)
+  if not accounts[name] then
+    accounts[name] = {balance = {EMERALD = 1000}}
+    saveAccounts()
+  end
+  return {userName = name, userBalanceEMERALD = accounts[name].balance.EMERALD}
+end
+
 player={name="",mode="EMERALD",balance={EMERALD=0}}
 helloMenu()
 while true do

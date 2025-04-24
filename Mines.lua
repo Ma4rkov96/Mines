@@ -70,8 +70,31 @@ end
 local function setNil() for i=1,5 do for j=1,5 do squares[i][j][5]=nil; squares[i][j][6]="untouched" end end end
 setNil()
 
-local function Square(x,y,col) os.sleep(0); local p=gpu.getForeground(); gpu.setForeground(col); for dy=0,7 do gpu.set(x,y+dy,string.rep("█",16)) end; gpu.setForeground(p) end
-local function drawSquares() os.sleep(0); for i=1,5 do for j=1,5 do local s=squares[i][j]; Square(s[1],s[2],colors.button) end end end
+local diamondImage = image.load("/images/diamond.pic")
+local bombImage = image.load("/images/boomb.pic")
+
+local function drawSquareWithImage(x, y, isWinning)
+  local picture = isWinning and diamondImage or bombImage
+  doubleBuffering.drawImage(x, y, picture)
+end
+
+-- Update the Square function to use images
+local function Square(x, y, isWinning)
+  os.sleep(0)
+  drawSquareWithImage(x, y, isWinning)
+end
+
+-- Update the drawSquares function to use the new Square function
+local function drawSquares()
+  os.sleep(0)
+  for i = 1, 5 do
+    for j = 1, 5 do
+      local s = squares[i][j]
+      Square(s[1], s[2], squares[i][j][5] == nil)
+    end
+  end
+end
+
 local function drawChances(m,ch) os.sleep(0); local cb,cf=gpu.getBackground(),gpu.getForeground(); if m=="draw" then gpu.setForeground(colors.black); for i=1,#ch do gpu.set(50,i*2,"x"..tostring(ch[i])) end else gpu.setBackground(colors.bg); gpu.fill(50,2,8,47," ") end; gpu.setBackground(cb);gpu.setForeground(cf) end
 
 -- Enhanced main frame with gradients and smoother visuals

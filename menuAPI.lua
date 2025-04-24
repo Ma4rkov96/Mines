@@ -52,7 +52,6 @@ function paySystemGUI()
   gpu.setResolution(60,20); gpu.setBackground(colors.bg); gpu.setForeground(colors.black)
   gpu.fill(1,1,60,20," ")
   gpu.set(23,2,"Платёжный шлюз")
-  drwSelect("EMERALD",true)
   gpu.set(27,8,"Сумма:")
   gpu.setBackground(colors.text_alt)
   gpu.set(15,9,"┌────────────────────────────┐")
@@ -69,13 +68,30 @@ function paySystem()
   while true do
     local ev={event.pull()}; local x,y=ev[3],ev[4]
     if ev[1]=="touch" and ev[6]==player.name then
-      if y>=4 and y<=6 then
-        if x>=16 and x<=27 then player.mode="BTC"; drwSelect("BTC",true); drwSelect("EMERALD",false)
-        elseif x>=32 and x<=44 then player.mode="EMERALD"; drwSelect("BTC",false); drwSelect("EMERALD",true) end
-      elseif x>=8 and x<=28 and y>=13 and y<=15 then local t=payNode("take",tonumber(sum)); if t>0 then redirect(); player.balance[player.mode]=player.balance[player.mode]+t; balanceWork(player.name,0,"add",t,player.mode,player.balance[player.mode],"payment",0); return end
-      elseif x>=32 and x<=52 and y>=13 and y<=15 then local g=payNode("give",tonumber(sum)); if g>0 then redirect(); player.balance[player.mode]=player.balance[player.mode]-g; balanceWork(player.name,0,"sub",g,player.mode,player.balance[player.mode],"payment",0); return end
-      elseif x>=24 and x<=37 and y>=17 and y<=19 then redirect(); return end
-    elseif ev[1]=="player_off" then helloMenu(); loop() end
+      if x>=8 and x<=28 and y>=13 and y<=15 then
+        local t=payNode("take",tonumber(sum))
+        if t>0 then
+          redirect()
+          player.balance[player.mode]=player.balance[player.mode]+t
+          balanceWork(player.name,0,"add",t,player.mode,player.balance[player.mode],"payment",0)
+          return
+        end
+      elseif x>=32 and x<=52 and y>=13 and y<=15 then
+        local g=payNode("give",tonumber(sum))
+        if g>0 then
+          redirect()
+          player.balance[player.mode]=player.balance[player.mode]-g
+          balanceWork(player.name,0,"sub",g,player.mode,player.balance[player.mode],"payment",0)
+          return
+        end
+      elseif x>=24 and x<=37 and y>=17 and y<=19 then
+        redirect()
+        return
+      end
+    elseif ev[1]=="player_off" then
+      helloMenu()
+      loop()
+    end
   end
 end
 
@@ -85,23 +101,4 @@ function helloMenu()
   gpu.setBackground(colors.black); gpu.setForeground(colors.win)
   gpu.fill(1,1,50,6," ")
   gpu.set(20,2,"МинноеПоле"); gpu.set(16,4,"Чтобы игру начать,"); gpu.set(17,5,"встаньте на PIM!")
-end
-
-function currencyForm()
-  os.sleep(0)
-  local cb,cf=gpu.getBackground(),gpu.getForeground()
-  gpu.setResolution(60,20); os.execute("clear")
-  gpu.setBackground(colors.black); gpu.setForeground(colors.white)
-  gpu.set(22,2,"Выберите валюту:"); drwSelect("EMERALD",false); drwSelect("BTC",true)
-  gpu.set(22,8,"┌─────────────┐"); gpu.set(22,9,"| Подтвердить |"); gpu.set(22,10,"└─────────────┘")
-  while true do
-    local ev={event.pull()}; local x,y=ev[3],ev[4]
-    if ev[1]=="touch" and ev[6]==player.name then
-      if y>=4 and y<=6 then
-        if x>=16 and x<=27 then player.mode="BTC"; drwSelect("BTC",true); drwSelect("EMERALD",false)
-        elseif x>=32 and x<=44 then player.mode="EMERALD"; drwSelect("BTC",false); drwSelect("EMERALD",true) end
-      elseif y>=8 and y<=10 and x>=22 and x<=37 then redirect(); break end
-    elseif ev[1]=="player_off" then helloMenu(); loop() end
-  end
-  gpu.setBackground(cb); gpu.setForeground(cf)
 end

@@ -88,39 +88,87 @@ function loop()
   while true do
     local ev={event.pull()}
     if ev[1]=="player_on" then
-      local r=login(ev[2]); player.name=r.userName; player.balance.BTC=r.userBalanceBTC;player.balance.EMERALD=r.userBalanceEMERALD
-      currencyForm(); inGame=false; wins=0; bet=2; count=2; mainFrame(); gpu.set(3,4,player.name); gpu.set(3,7,tostring(player.balance[player.mode]))
+      local r=login(ev[2])
+      player.name=r.userName
+      player.balance.EMERALD=r.userBalanceEMERALD
+      inGame=false
+      wins=0
+      bet=2
+      count=2
+      mainFrame()
+      gpu.set(3,4,player.name)
+      gpu.set(3,7,tostring(player.balance[player.mode]))
     elseif ev[1]=="touch" and ev[6]==player.name then
       local x,y=ev[3],ev[4]
       if inGame then
         local col=math.floor((x-68)/18)+1
         local row=math.floor((y-4)/9)+1
         if x>=13 and x<=33 and y>=34 and y<=37 then
-          gpu.set(3,7,"        "); player.balance[player.mode]=player.balance[player.mode]+bet*tbl[wins]; gpu.set(3,7,tostring(player.balance[player.mode])); balanceWork(player.name,bet,"win",bet*(tbl[wins]-1),player.mode,player.balance[player.mode],"game"..player.mode,count)
-          inGame=false; wins=0; setNil(); drawChances("clean")
+          gpu.set(3,7,"        ")
+          player.balance[player.mode]=player.balance[player.mode]+bet*tbl[wins]
+          gpu.set(3,7,tostring(player.balance[player.mode]))
+          balanceWork(player.name,bet,"win",bet*(tbl[wins]-1),player.mode,player.balance[player.mode],"game"..player.mode,count)
+          inGame=false
+          wins=0
+          setNil()
+          drawChances("clean")
           startButton(colors.button,colors.black)
         elseif col>=1 and col<=5 and row>=1 and row<=5 and squares[row][col][6]=="untouched" then
           if squares[row][col][5]==nil then
             Square(squares[row][col][1],squares[row][col][2],colors.win)
             if wins~=0 then gpu.set(50,wins*2," ") end
-            gpu.set(50,(wins+1)*2,"→"); wins=wins+1; squares[row][col][6]="touched"; payoutButton(tbl[wins])
+            gpu.set(50,(wins+1)*2,"→")
+            wins=wins+1
+            squares[row][col][6]="touched"
+            payoutButton(tbl[wins])
           else
             Square(squares[row][col][1],squares[row][col][2],colors.lose)
-            payoutButton("lose"); wins=0; setNil(); inGame=false; drawChances("clean"); gpu.set(3,7,"        "); player.balance[player.mode]=player.balance[player.mode]-bet; gpu.set(3,7,tostring(player.balance[player.mode])); balanceWork(player.name,bet,"lose",0,player.mode,player.balance[player.mode],"game"..player.mode,count); startButton(colors.button,colors.black)
+            payoutButton("lose")
+            wins=0
+            setNil()
+            inGame=false
+            drawChances("clean")
+            gpu.set(3,7,"        ")
+            player.balance[player.mode]=player.balance[player.mode]-bet
+            gpu.set(3,7,tostring(player.balance[player.mode]))
+            balanceWork(player.name,bet,"lose",0,player.mode,player.balance[player.mode],"game"..player.mode,count)
+            startButton(colors.button,colors.black)
           end
         end
       else
         if x>=13 and x<=33 and y>=39 and y<=41 and player.balance[player.mode]>=bet then
-          startButton(colors.button_clicked,colors.text_alt); shuffle(count); drawSquares(); tbl=chances(count); drawChances("draw",tbl); inGame=true
-        elseif x>=13 and x<=17 and y>=29 and y<=31 and count>2 then count=count-1; minesCount(colors.button,colors.black,count)
-        elseif x>=30 and x<=34 and y>=29 and y<=31 and count<24 then count=count+1; minesCount(colors.button,colors.black,count)
-        elseif x>=30 and x<=34 and y>=24 and y<=26 and bet<10 then bet=bet+1; betCount(colors.button,colors.black,bet)
-        elseif x>=13 and x<=17 and y>=24 and y<=26 and bet>1 then bet=bet-1; betCount(colors.button,colors.black,bet)
+          startButton(colors.button_clicked,colors.text_alt)
+          shuffle(count)
+          drawSquares()
+          tbl=chances(count)
+          drawChances("draw",tbl)
+          inGame=true
+        elseif x>=13 and x<=17 and y>=29 and y<=31 and count>2 then
+          count=count-1
+          minesCount(colors.button,colors.black,count)
+        elseif x>=30 and x<=34 and y>=29 and y<=31 and count<24 then
+          count=count+1
+          minesCount(colors.button,colors.black,count)
+        elseif x>=30 and x<=34 and y>=24 and y<=26 and bet<10 then
+          bet=bet+1
+          betCount(colors.button,colors.black,bet)
+        elseif x>=13 and x<=17 and y>=24 and y<=26 and bet>1 then
+          bet=bet-1
+          betCount(colors.button,colors.black,bet)
         elseif x>=16 and x<=44 and y>=43 and y<=45 then
-          paySystem(); inGame=false; bet=2; wins=0; count=2; mainFrame(); gpu.set(3,4,player.name); gpu.set(3,7,tostring(player.balance[player.mode]))
+          paySystem()
+          inGame=false
+          bet=2
+          wins=0
+          count=2
+          mainFrame()
+          gpu.set(3,4,player.name)
+          gpu.set(3,7,tostring(player.balance[player.mode]))
         end
       end
-    elseif ev[1]=="player_off" then helloMenu() end
+    elseif ev[1]=="player_off" then
+      helloMenu()
+    end
   end
 end
 

@@ -27,46 +27,24 @@ local function betCount(bcg, frg, count)
   gpu.setBackground(cb); gpu.setForeground(cf)
 end
 
+-- Исправление кнопки "Начать игру" и ошибки drawChances
 function startButton(bcg, frg)
-  local cb,cf = gpu.getBackground(), gpu.getForeground()
-  gpu.setBackground(bcg); gpu.setForeground(frg)
-  gpu.set(13,39, "                    ")
-  gpu.set(13,40, "    Начать игру!    ")
-  gpu.set(13,41, "                    ")
-  gpu.setBackground(cb); gpu.setForeground(cf)
+  doubleBuffering.drawRectangle(13, 39, 20, 3, bcg, 0x000000, " ")
+  doubleBuffering.drawText(15, 40, frg, "Начать игру!")
 end
 
-function payoutButton(k)
-  local cb = gpu.getBackground()
-  gpu.setBackground(colors.button)
-  if k == "lose" then
-    gpu.set(13,34, "                    ")
-    gpu.set(13,35, "         ВЫ         ")
-    gpu.set(13,36, "     ПРОИГРАЛИ!     ")
-    gpu.set(13,37, "                    ")
-  else
-    gpu.set(13,34, "                    ")
-    gpu.set(13,35, "       Забрать      ")
-    gpu.set(13,36, "                    ")
-    gpu.set(13,37, "                    ")
-    gpu.set(17,36, "x" .. tostring(k))
+local function drawChances(mode, chances)
+  if mode == "draw" then
+    for i, chance in ipairs(chances) do
+      doubleBuffering.drawText(50, i * 2, colors.white, "x" .. tostring(chance))
+    end
+  elseif mode == "clean" then
+    doubleBuffering.drawRectangle(50, 2, 8, 47, colors.bg, 0x000000, " ")
   end
-  gpu.setBackground(cb)
 end
 
-local dataFile="/user_data.cfg"
-local accounts={}
-if fs.exists(dataFile) then local f=io.open(dataFile); accounts=serialization.unserialize(f:read("*a")) or {}; f:close() end
-local function saveAccounts() local f=io.open(dataFile,"w"); f:write(serialization.serialize(accounts)); f:close() end
-
-function login(name)
-  if not accounts[name] then accounts[name]={balance={EMERALD=1000}}; saveAccounts() end
-  return {userName=name,userBalanceEMERALD=accounts[name].balance.EMERALD}
-end
-
-function balanceWork(name,bet,status,profit,curr,balance,typ,mines)
-  accounts[name].balance[curr]=balance; saveAccounts()
-end
+-- Установить значения по умолчанию для ставки и количества мин
+local count, bet = 2, 2
 
 local function setNil() for i=1,5 do for j=1,5 do squares[i][j][5]=nil; squares[i][j][6]="untouched" end end end
 setNil()
@@ -110,6 +88,10 @@ local function enhancedMainFrame()
   doubleBuffering.drawText(3, 4, colors.text_alt, player.name)
   doubleBuffering.drawText(3, 6, colors.white, "Баланс EMERALD:")
   doubleBuffering.drawText(3, 7, colors.text_alt, tostring(player.balance[player.mode]))
+
+  -- Подписи для ставок и количества мин
+  doubleBuffering.drawText(13, 22, colors.white, "Ставка:")
+  doubleBuffering.drawText(13, 27, colors.white, "Кол-во мин:")
 
   -- Нарисовать кнопки ставок
   doubleBuffering.drawRectangle(13, 24, 5, 3, colors.button, 0x000000, " ")

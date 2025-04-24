@@ -1,4 +1,3 @@
-
 local computer = require("computer")
 local color = require("color")
 local unicode = require("unicode")
@@ -351,7 +350,7 @@ end
 
 -------------------------------------------------------------------------------
 
-image.loadFormatModule("/lib/FormatModules/OCIF.lua", ".pic")
+image.loadFormatModule("/lib/OCIF.lua", ".pic")
 
 -------------------------------------------------------------------------------
 

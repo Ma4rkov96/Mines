@@ -4,6 +4,7 @@ local fs            = require("filesystem")
 local serialization = require("serialization")
 local doubleBuffering = require("lib.DoubleBuffering")
 local image = require("lib.Image")
+local color = require("lib.Color")
 
 local gpu       = component.gpu
 local pim       = component.pim
@@ -97,36 +98,36 @@ end
 
 local function drawChances(m,ch) os.sleep(0); local cb,cf=gpu.getBackground(),gpu.getForeground(); if m=="draw" then gpu.setForeground(colors.black); for i=1,#ch do gpu.set(50,i*2,"x"..tostring(ch[i])) end else gpu.setBackground(colors.bg); gpu.fill(50,2,8,47," ") end; gpu.setBackground(cb);gpu.setForeground(cf) end
 
--- Enhanced main frame with gradients and smoother visuals
+-- Убрал градиент и вернул стандартный фон
 local function enhancedMainFrame()
   doubleBuffering.setResolution(160, 50)
   doubleBuffering.clear(colors.bg)
 
-  -- Draw borders with gradient effect
-  for i = 1, 50 do
-    local gradientColor = color.transition(colors.bg, colors.button, i / 50)
-    doubleBuffering.drawRectangle(1, i, 160, 1, gradientColor, 0x000000, " ")
-  end
+  -- Нарисовать границы
+  doubleBuffering.drawRectangle(1, 1, 160, 50, colors.bg, 0x000000, " ")
 
-  -- Draw title
+  -- Нарисовать заголовки
   doubleBuffering.drawText(3, 3, colors.white, "Игрок:")
   doubleBuffering.drawText(3, 6, colors.white, "Баланс EMERALD:")
   doubleBuffering.drawText(19, 23, colors.white, "Ставка:")
 
-  -- Draw buttons with semi-pixel rendering
-  doubleBuffering.drawSemiPixelRectangle(13, 24, 20, 3, colors.button)
+  -- Нарисовать кнопки
+  doubleBuffering.drawRectangle(13, 24, 20, 3, colors.button, 0x000000, " ")
   doubleBuffering.drawText(15, 25, colors.black, "-1")
   doubleBuffering.drawText(20, 25, colors.black, "2")
   doubleBuffering.drawText(25, 25, colors.black, "+1")
 
-  doubleBuffering.drawSemiPixelRectangle(13, 29, 20, 3, colors.button)
+  doubleBuffering.drawRectangle(13, 29, 20, 3, colors.button, 0x000000, " ")
   doubleBuffering.drawText(15, 30, colors.black, "-1")
   doubleBuffering.drawText(20, 30, colors.black, "2")
   doubleBuffering.drawText(25, 30, colors.black, "+1")
 
-  -- Draw footer
+  -- Нарисовать нижнюю панель
   doubleBuffering.drawRectangle(9, 43, 40, 3, colors.button, 0x000000, " ")
   doubleBuffering.drawText(11, 44, colors.black, "Пополнить/Вывести")
+
+  -- Вернуть отрисовку клеток
+  drawSquares()
 
   doubleBuffering.drawChanges()
 end

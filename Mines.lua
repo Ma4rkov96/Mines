@@ -74,31 +74,30 @@ setNil()
 local diamondImage = image.load("/images/diamond.pic")
 local bombImage = image.load("/images/boomb.pic")
 
-local function drawSquareWithImage(x, y, isWinning)
-  local picture = isWinning and diamondImage or bombImage
-  doubleBuffering.drawImage(x, y, picture)
-end
-
--- Update the Square function to use images
-local function Square(x, y, isWinning)
+-- Исправление отрисовки клеток
+local function Square(x, y, state)
   os.sleep(0)
-  drawSquareWithImage(x, y, isWinning)
+  if state == "untouched" then
+    doubleBuffering.drawRectangle(x, y, 16, 8, colors.button, 0x000000, " ")
+  elseif state == "touched_no_mine" then
+    doubleBuffering.drawImage(x, y, diamondImage)
+  elseif state == "touched_mine" then
+    doubleBuffering.drawImage(x, y, bombImage)
+  end
 end
 
--- Update the drawSquares function to use the new Square function
 local function drawSquares()
   os.sleep(0)
   for i = 1, 5 do
     for j = 1, 5 do
       local s = squares[i][j]
-      Square(s[1], s[2], squares[i][j][5] == nil)
+      local state = s[6] == "untouched" and "untouched" or (s[5] and "touched_mine" or "touched_no_mine")
+      Square(s[1], s[2], state)
     end
   end
 end
 
-local function drawChances(m,ch) os.sleep(0); local cb,cf=gpu.getBackground(),gpu.getForeground(); if m=="draw" then gpu.setForeground(colors.black); for i=1,#ch do gpu.set(50,i*2,"x"..tostring(ch[i])) end else gpu.setBackground(colors.bg); gpu.fill(50,2,8,47," ") end; gpu.setBackground(cb);gpu.setForeground(cf) end
-
--- Убрал градиент и вернул стандартный фон
+-- Исправление интерфейса
 local function enhancedMainFrame()
   doubleBuffering.setResolution(160, 50)
   doubleBuffering.clear(colors.bg)
@@ -108,31 +107,39 @@ local function enhancedMainFrame()
 
   -- Нарисовать заголовки
   doubleBuffering.drawText(3, 3, colors.white, "Игрок:")
+  doubleBuffering.drawText(3, 4, colors.text_alt, player.name)
   doubleBuffering.drawText(3, 6, colors.white, "Баланс EMERALD:")
-  doubleBuffering.drawText(19, 23, colors.white, "Ставка:")
+  doubleBuffering.drawText(3, 7, colors.text_alt, tostring(player.balance[player.mode]))
 
-  -- Нарисовать кнопки
-  doubleBuffering.drawRectangle(13, 24, 20, 3, colors.button, 0x000000, " ")
+  -- Нарисовать кнопки ставок
+  doubleBuffering.drawRectangle(13, 24, 5, 3, colors.button, 0x000000, " ")
   doubleBuffering.drawText(15, 25, colors.black, "-1")
-  doubleBuffering.drawText(20, 25, colors.black, "2")
-  doubleBuffering.drawText(25, 25, colors.black, "+1")
+  doubleBuffering.drawRectangle(18, 24, 10, 3, colors.bg, 0x000000, " ")
+  doubleBuffering.drawText(22, 25, colors.white, tostring(bet))
+  doubleBuffering.drawRectangle(28, 24, 5, 3, colors.button, 0x000000, " ")
+  doubleBuffering.drawText(30, 25, colors.black, "+1")
 
-  doubleBuffering.drawRectangle(13, 29, 20, 3, colors.button, 0x000000, " ")
+  -- Нарисовать кнопки количества мин
+  doubleBuffering.drawRectangle(13, 29, 5, 3, colors.button, 0x000000, " ")
   doubleBuffering.drawText(15, 30, colors.black, "-1")
-  doubleBuffering.drawText(20, 30, colors.black, "2")
-  doubleBuffering.drawText(25, 30, colors.black, "+1")
+  doubleBuffering.drawRectangle(18, 29, 10, 3, colors.bg, 0x000000, " ")
+  doubleBuffering.drawText(22, 30, colors.white, tostring(count))
+  doubleBuffering.drawRectangle(28, 29, 5, 3, colors.button, 0x000000, " ")
+  doubleBuffering.drawText(30, 30, colors.black, "+1")
 
   -- Нарисовать нижнюю панель
   doubleBuffering.drawRectangle(9, 43, 40, 3, colors.button, 0x000000, " ")
   doubleBuffering.drawText(11, 44, colors.black, "Пополнить/Вывести")
 
-  -- Вернуть отрисовку клеток
+  -- Кнопка начать игру
+  startButton(colors.button, colors.black)
+
+  -- Отрисовать клетки
   drawSquares()
 
   doubleBuffering.drawChanges()
 end
 
--- Replace the old mainFrame function with the enhanced one
 mainFrame = enhancedMainFrame
 
 local function shuffle(cnt) for _=1,cnt do ::again::; local r,c=math.random(1,5),math.random(1,5); if squares[r][c][5]==nil then squares[r][c][5]=true else goto again end end end

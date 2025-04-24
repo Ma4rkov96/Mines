@@ -124,7 +124,37 @@ end
 
 mainFrame = enhancedMainFrame
 
-local function shuffle(cnt) for _=1,cnt do ::again::; local r,c=math.random(1,5),math.random(1,5); if squares[r][c][5]==nil then squares[r][c][5]=true else goto again end end end
+-- Восстановление функции payoutButton
+function payoutButton(k)
+  local cb = gpu.getBackground()
+  gpu.setBackground(colors.button)
+  if k == "lose" then
+    gpu.set(13, 34, "                    ")
+    gpu.set(13, 35, "         ВЫ         ")
+    gpu.set(13, 36, "     ПРОИГРАЛИ!     ")
+    gpu.set(13, 37, "                    ")
+  else
+    gpu.set(13, 34, "                    ")
+    gpu.set(13, 35, "       Забрать      ")
+    gpu.set(13, 36, "                    ")
+    gpu.set(13, 37, "                    ")
+    gpu.set(17, 36, "x" .. tostring(k))
+  end
+  gpu.setBackground(cb)
+end
+
+local function shuffle(cnt)
+  tbl = chances(cnt) -- Убедиться, что tbl корректно инициализирована
+  for _ = 1, cnt do
+    ::again::
+    local r, c = math.random(1, 5), math.random(1, 5)
+    if squares[r][c][5] == nil then
+      squares[r][c][5] = true
+    else
+      goto again
+    end
+  end
+end
 
 function loop()
   local count, inGame, tbl, wins, bet = 2,false,{},0,2
